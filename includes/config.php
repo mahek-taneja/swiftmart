@@ -2,6 +2,16 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 function base_path() : string {
+    // Determine the web root of the app relative to the server document root,
+    // independent of the currently executing script path.
+    // This ensures links built via build_path() work from any subdirectory.
+    $docRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+    $appRootFs = str_replace('\\', '/', realpath(__DIR__ . '/..'));
+    if ($docRoot && $appRootFs && str_starts_with($appRootFs, $docRoot)) {
+        $rel = substr($appRootFs, strlen($docRoot));
+        return $rel === '' ? '' : rtrim($rel, '/');
+    }
+    // Fallback to previous behavior using current script directory
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
     $dir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
     return $dir === '/' ? '' : $dir;
