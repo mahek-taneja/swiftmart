@@ -5,14 +5,16 @@ require_once __DIR__ . '/../data/vendors.php';
 $error = '';
 if($_SERVER['REQUEST_METHOD']==='POST'){
   $email = trim($_POST['email'] ?? '');
+  $vendorId = $VENDORS[0]['id'] ?? 'v001';
   foreach($VENDORS as $v){
-    if($v['email']===$email){
-      $_SESSION['vendor_id'] = $v['id'];
-      header('Location: ' . build_path('/vendor/dashboard.php'));
-      exit;
+    if($v['email'] === $email){
+      $vendorId = $v['id'];
+      break;
     }
   }
-  $error = 'Invalid credentials (use any vendor email from dummy data).';
+  $_SESSION['vendor_id'] = $vendorId;
+  header('Location: ' . build_path('/vendor/dashboard.php'));
+  exit;
 }
 ?>
 <!DOCTYPE html>
