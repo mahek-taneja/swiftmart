@@ -2,9 +2,22 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 function base_path() : string {
+    // If explicitly set, use environment override (e.g., "/swiftmart")
+    $override = getenv('APP_BASE_URI');
+    if ($override !== false) {
+        $override = rtrim($override, '/');
+        return $override === '' ? '' : $override;
+    }
+
+    // Auto-detect app root as the first path segment (e.g., /swiftmart)
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $dir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
-    return $dir === '/' ? '' : $dir;
+    $parts = explode('/', trim($scriptName, '/'));
+    if (count($parts) > 1) {
+        // script under /app/..., use "/app" as base
+        return '/' . $parts[0];
+    }
+    // running at domain root
+    return '';
 }
 
 function build_path(string $path) : string {
