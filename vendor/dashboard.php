@@ -35,7 +35,7 @@ $myProducts = array_values(array_filter($PRODUCTS, fn($p)=> $p['vendor_id']===cu
     <div class="col-12 col-lg-4">
       <div class="card p-3 h-100">
         <div class="small text-muted">Revenue (dummy)</div>
-        <div class="display-6">$2,345.00</div>
+        <div class="display-6">₹2,345.00</div>
       </div>
     </div>
   </div>

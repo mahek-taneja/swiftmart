@@ -29,8 +29,8 @@ function build_path(string $path) : string {
 }
 
 function format_price_cents(int $cents) : string {
-    $dollars = number_format($cents / 100, 2);
-    return '$' . $dollars;
+    $rupees = number_format($cents / 100, 2);
+    return '₹' . $rupees;
 }
 
 function current_vendor_id() : ?string {

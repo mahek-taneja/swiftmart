@@ -1,29 +1,91 @@
-:root{
-  --brand:#0d6efd;
+:root {
+  --brand: #7c3aed;
+  /* vibrant purple */
+  --brand-600: #6d28d9;
+  --brand-700: #5b21b6;
+  --brand-contrast: #ffffff;
+  --accent: #22c55e;
+  /* emerald */
+  --accent-600: #16a34a;
 }
 
-body{
-  background-color:#f8f9fa;
+body {
+  background-color: #f6f7fb;
 }
 
-.category-card{
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.category-card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 0.5rem 1rem rgba(0,0,0,.15);
+/* Bootstrap overrides */
+.bg-primary {
+  background-color: var(--brand) !important;
 }
 
-.product-card img{
-  object-fit:cover;
-  height:180px;
+.btn-primary {
+  background-color: var(--brand);
+  border-color: var(--brand-700);
 }
 
-.price{
-  color:#0a7b34;
-  font-weight:600;
+.btn-primary:hover {
+  background-color: var(--brand-600);
+  border-color: var(--brand-700);
 }
 
-.cursor-pointer{cursor:pointer}
+.btn-outline-primary {
+  color: var(--brand);
+  border-color: var(--brand);
+}
 
+.btn-outline-primary:hover {
+  background-color: var(--brand);
+  color: var(--brand-contrast);
+}
 
+.text-bg-primary {
+  background-color: var(--brand) !important;
+  color: var(--brand-contrast) !important;
+}
+
+.navbar.bg-body-tertiary {
+  background: #ffffff !important;
+}
+
+.navbar .nav-link {
+  color: #4b5563;
+}
+
+.navbar .nav-link:hover {
+  color: var(--brand);
+}
+
+.navbar .navbar-brand {
+  color: var(--brand-700);
+}
+
+.navbar .navbar-brand:hover {
+  color: var(--brand);
+}
+
+.category-card {
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
+}
+
+.category-card .card-body {
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.06), rgba(255, 255, 255, 0));
+}
+
+.product-card img {
+  object-fit: cover;
+  height: 180px;
+}
+
+.price {
+  color: var(--accent-600);
+  font-weight: 600;
+}
+
+.cursor-pointer {
+  cursor: pointer
+}

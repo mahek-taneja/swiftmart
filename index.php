@@ -25,7 +25,7 @@ require_once __DIR__ . '/data/products.php';
             <h2 class="h4 mb-3">Categories</h2>
             <div class="row g-3">
                 <?php
-            $categories = ['Groceries', 'Electronics', 'Fashion', 'Home', 'Health'];
+            $categories = ['Groceries', 'Electronics', 'Fashion', 'Home', 'Health', 'Foods', 'Beauty', 'Toys', 'Sports', 'Automotive'];
             foreach ($categories as $category): ?>
                 <div class="col-6 col-md-4 col-lg-3">
                     <a class="text-decoration-none"
