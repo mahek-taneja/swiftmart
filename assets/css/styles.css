@@ -1,12 +1,12 @@
 :root {
-  --brand: #7c3aed;
-  /* vibrant purple */
-  --brand-600: #6d28d9;
-  --brand-700: #5b21b6;
+  --brand: #06c167;
+  /* fresh food green */
+  --brand-600: #05a857;
+  --brand-700: #048e4a;
   --brand-contrast: #ffffff;
-  --accent: #22c55e;
-  /* emerald */
-  --accent-600: #16a34a;
+  --accent: #ffb703;
+  /* warm accent */
+  --accent-600: #f59e0b;
   --text-900: #0f172a;
   --text-700: #334155;
   --surface: #ffffff;
@@ -72,6 +72,10 @@ body {
 
 .category-card {
   transition: transform .15s ease, box-shadow .15s ease;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(6, 193, 103, 0.06), rgba(255, 255, 255, 0));
 }
 
 .category-card:hover {
@@ -80,7 +84,7 @@ body {
 }
 
 .category-card .card-body {
-  background: linear-gradient(180deg, rgba(124, 58, 237, 0.06), rgba(255, 255, 255, 0));
+  padding: 16px;
 }
 
 .product-card img {
@@ -117,9 +121,40 @@ body {
 
 /* Hero section styling */
 .home-hero {
-  background: radial-gradient(1200px 600px at 10% -10%, rgba(124, 58, 237, .15), rgba(124, 58, 237, 0)),
-    linear-gradient(180deg, rgba(124, 58, 237, .08), rgba(124, 58, 237, 0));
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(6, 193, 103, .18), rgba(6, 193, 103, 0)),
+    linear-gradient(180deg, rgba(6, 193, 103, .1), rgba(6, 193, 103, 0));
   border: 1px solid var(--border);
+}
+
+/* Horizontal categories scroller */
+.categories-scroller {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.categories-scroller .category-item {
+  flex: 0 0 auto;
+  width: 160px;
+  scroll-snap-align: start;
+}
+
+.categories-scroller::-webkit-scrollbar {
+  height: 8px;
+}
+
+.categories-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.categories-scroller::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 999px;
 }
 
 .home-hero .btn-light {

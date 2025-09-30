@@ -3,7 +3,8 @@ require_once __DIR__ . '/../includes/head.php';
 require_once __DIR__ . '/../data/products.php';
 $category = $_GET['category'] ?? null;
 $q = $_GET['q'] ?? null;
-$items = get_products(['category'=>$category,'q'=>$q]);
+$vendorId = $_GET['vendor'] ?? null;
+$items = get_products(['category'=>$category,'q'=>$q,'vendor_id'=>$vendorId]);
 ?>
 <!DOCTYPE html>
 <html lang="en">
