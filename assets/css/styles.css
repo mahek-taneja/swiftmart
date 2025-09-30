@@ -7,10 +7,17 @@
   --accent: #22c55e;
   /* emerald */
   --accent-600: #16a34a;
+  --text-900: #0f172a;
+  --text-700: #334155;
+  --surface: #ffffff;
+  --surface-elev: #ffffff;
+  --border: #e2e8f0;
 }
 
 body {
   background-color: #f6f7fb;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text-900);
 }
 
 /* Bootstrap overrides */
@@ -44,11 +51,11 @@ body {
 }
 
 .navbar.bg-body-tertiary {
-  background: #ffffff !important;
+  background: var(--surface) !important;
 }
 
 .navbar .nav-link {
-  color: #4b5563;
+  color: var(--text-700);
 }
 
 .navbar .nav-link:hover {
@@ -88,4 +95,33 @@ body {
 
 .cursor-pointer {
   cursor: pointer
+}
+
+/* Sticky, elevated header */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  box-shadow: 0 1px 0 var(--border), 0 8px 24px rgba(0, 0, 0, .04);
+}
+
+/* Search tweaks */
+.navbar form[role="search"] .form-control {
+  border-radius: 999px;
+  border-color: var(--border);
+}
+
+.navbar form[role="search"] .btn {
+  border-radius: 999px;
+}
+
+/* Hero section styling */
+.home-hero {
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(124, 58, 237, .15), rgba(124, 58, 237, 0)),
+    linear-gradient(180deg, rgba(124, 58, 237, .08), rgba(124, 58, 237, 0));
+  border: 1px solid var(--border);
+}
+
+.home-hero .btn-light {
+  color: var(--brand-700);
 }

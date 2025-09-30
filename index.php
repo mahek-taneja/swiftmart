@@ -13,7 +13,7 @@ require_once __DIR__ . '/data/products.php';
     <?php include __DIR__ . '/includes/navbar.php'; ?>
 
     <main class="container py-4">
-        <div class="p-4 p-md-5 mb-4 text-white rounded bg-primary">
+        <div class="p-4 p-md-5 mb-4 text-white rounded bg-primary home-hero">
             <div class="col-md-8 px-0">
                 <h1 class="display-5 fw-bold">SwiftMart</h1>
                 <p class="lead my-3">Your multi-sector delivery platform for groceries, retail, and more.</p>

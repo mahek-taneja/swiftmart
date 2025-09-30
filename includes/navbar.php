@@ -2,14 +2,15 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="<?php echo build_path('/index.php'); ?>">
-            <img src="<?php echo build_path('/assets/img/logo.png'); ?>" alt="SwiftMart" style="height:56px;width:auto"/>
+            <img src="<?php echo build_path('/assets/img/logo.png'); ?>" alt="SwiftMart"
+                style="height:56px;width:auto" />
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
                 <li class="nav-item"><a class="nav-link"
                         href="<?php echo build_path('/customer/listings.php'); ?>">Shop</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo build_path('/customer/cart.php'); ?>"><i
@@ -32,12 +33,15 @@
                 </li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo build_path('/admin/login.php'); ?>">Admin</a>
                 </li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo build_path('/stores.php'); ?>">Stores</a>
+                </li>
             </ul>
-            <form class="d-flex" role="search" action="<?php echo build_path('/customer/listings.php'); ?>"
+            <form class="d-flex my-2 my-lg-0" role="search" action="<?php echo build_path('/customer/listings.php'); ?>"
                 method="get">
-                <input class="form-control me-2" type="search" name="q" placeholder="Search products"
-                    aria-label="Search">
-                <button class="btn btn-outline-primary" type="submit">Search</button>
+                <input class="form-control me-2 px-3" type="search" name="q"
+                    placeholder="Search products, categories, brands" aria-label="Search">
+                <button class="btn btn-outline-primary px-3" type="submit"><i class="bi bi-search"></i><span
+                        class="d-none d-md-inline ms-2">Search</span></button>
             </form>
         </div>
     </div>
