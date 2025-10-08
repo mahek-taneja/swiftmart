@@ -13,7 +13,7 @@ require_once __DIR__ . '/data/products.php';
     <?php include __DIR__ . '/includes/navbar.php'; ?>
 
     <main class="container py-4">
-        <div class="p-4 p-md-5 mb-4 text-white rounded bg-primary">
+        <div class="p-4 p-md-5 mb-4 text-white rounded bg-primary home-hero">
             <div class="col-md-8 px-0">
                 <h1 class="display-5 fw-bold">SwiftMart</h1>
                 <p class="lead my-3">Your multi-sector delivery platform for groceries, retail, and more.</p>
@@ -23,14 +23,14 @@ require_once __DIR__ . '/data/products.php';
 
         <section class="my-5">
             <h2 class="h4 mb-3">Categories</h2>
-            <div class="row g-3">
+            <div class="categories-scroller">
                 <?php
             $categories = ['Groceries', 'Electronics', 'Fashion', 'Home', 'Health', 'Foods', 'Beauty', 'Toys', 'Sports', 'Automotive'];
             foreach ($categories as $category): ?>
-                <div class="col-6 col-md-4 col-lg-3">
+                <div class="category-item">
                     <a class="text-decoration-none"
                         href="<?php echo build_path('/customer/listings.php?category=') . urlencode($category); ?>">
-                        <div class="card h-100 category-card">
+                        <div class="card category-card h-100">
                             <div class="card-body d-flex align-items-center justify-content-center">
                                 <span class="fw-semibold"><?php echo htmlspecialchars($category); ?></span>
                             </div>

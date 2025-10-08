@@ -197,6 +197,9 @@ function get_products(array $opts = []) : array {
   if(isset($opts['category'])){
     $items = array_values(array_filter($items, fn($p)=> $p['category']===$opts['category']));
   }
+  if(isset($opts['vendor_id'])){
+    $items = array_values(array_filter($items, fn($p)=> $p['vendor_id']===$opts['vendor_id']));
+  }
   if(isset($opts['q'])){
     $q = strtolower(trim($opts['q']));
     $items = array_values(array_filter($items, fn($p)=> str_contains(strtolower($p['name']), $q)));
