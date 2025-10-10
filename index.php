@@ -138,7 +138,6 @@ $heroPoster = build_asset('/assets/img/hero-poster.jpg');     // add this image 
         </video>
         <div class="hero-overlay" aria-hidden="true"></div>
         <div class="hero-content">
-            <h1 class="hero-title">Discover restaurants that deliver near you</h1>
             <p class="hero-subtitle">Searching the most delicious dishes in your area...</p>
             <form class="hero-search" action="<?= htmlspecialchars(build_path('/customer/listings.php')) ?>"
                 method="get" role="search" aria-label="Restaurant search">
