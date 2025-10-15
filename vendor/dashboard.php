@@ -10,39 +10,75 @@ require_once __DIR__ . '/../includes/head.php';
 // ✅ Ensure vendor is logged in
 require_vendor();
 
-// ✅ Get current vendor ID from helper or session
-$vendorId = $_SESSION['vendor_id'] ?? null;
-
+// ✅ Get current vendor ID via helper
+$vendorId = current_vendor_id();
 if (!$vendorId) {
-    // if still missing, redirect to login
     header('Location: ' . build_path('/vendor/login.php'));
     exit;
 }
 
+$error = '';
+$vendor = ['name' => 'Vendor', 'email' => '', 'approved' => 0];
+$myProducts = [];
+$totalProducts = 0;
+
 try {
     $db = Database::getInstance()->getConnection();
 
-    // ✅ Fetch vendor info
-    $stmt = $db->prepare("SELECT name, email, approved FROM vendors WHERE id = ?");
-    $stmt->execute([$vendorId]);
-    $vendor = $stmt->fetch();
-
-    if (!$vendor) {
-        // vendor not found in DB, log out
+    // Fetch vendor info
+    $stmt = $db->prepare("SELECT id, name, email, approved FROM vendors WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $vendorId]);
+    $row = $stmt->fetch();
+    if (!$row) {
+        // Vendor not found → logout & redirect
+        session_unset();
         session_destroy();
         header('Location: ' . build_path('/vendor/login.php'));
         exit;
     }
+    $vendor = $row;
 
-    // ✅ Fetch vendor products
-    $productStmt = $db->prepare("SELECT id, name, category, price_cents AS price, stock FROM products WHERE vendor_id = ?");
-    $productStmt->execute([$vendorId]);
+    // Detect price column (price_cents vs price)
+    $hasPriceCents = false;
+    $colStmt = $db->prepare("SHOW COLUMNS FROM products LIKE 'price_cents'");
+    $colStmt->execute();
+    $hasPriceCents = (bool)$colStmt->fetch();
+
+    // Count products
+    $countStmt = $db->prepare("SELECT COUNT(*) FROM products WHERE vendor_id = :vid");
+    $countStmt->execute([':vid' => $vendorId]);
+    $totalProducts = (int)$countStmt->fetchColumn();
+
+    // Products list with category join
+    if ($hasPriceCents) {
+        $sql = "
+            SELECT p.id, p.name,
+                   COALESCE(c.name, 'Uncategorized') AS category,
+                   p.price_cents, p.stock
+            FROM products p
+            LEFT JOIN categories c ON c.id = p.category_id
+            WHERE p.vendor_id = :vid
+            ORDER BY p.created_at DESC, p.id DESC
+            LIMIT 200
+        ";
+    } else {
+        $sql = "
+            SELECT p.id, p.name,
+                   COALESCE(c.name, 'Uncategorized') AS category,
+                   p.price, p.stock
+            FROM products p
+            LEFT JOIN categories c ON c.id = p.category_id
+            WHERE p.vendor_id = :vid
+            ORDER BY p.created_at DESC, p.id DESC
+            LIMIT 200
+        ";
+    }
+    $productStmt = $db->prepare($sql);
+    $productStmt->execute([':vid' => $vendorId]);
     $myProducts = $productStmt->fetchAll();
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     $error = $e->getMessage();
-    $vendor = ['name' => 'Unknown', 'email' => '', 'approved' => 0];
-    $myProducts = [];
 }
 ?>
 <!DOCTYPE html>
@@ -69,7 +105,7 @@ try {
             <div class="col-12 col-lg-4">
                 <div class="card p-3 h-100 shadow-sm">
                     <div class="small text-muted">Total Products</div>
-                    <div class="display-6"><?= count($myProducts); ?></div>
+                    <div class="display-6"><?= (int)$totalProducts; ?></div>
                 </div>
             </div>
             <div class="col-12 col-lg-4">
@@ -91,20 +127,30 @@ try {
             <table class="table align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Name</th>
+                        <th style="min-width:220px;">Name</th>
                         <th>Category</th>
                         <th>Price</th>
                         <th>Stock</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (count($myProducts) > 0): ?>
+                    <?php if ($myProducts): ?>
                     <?php foreach ($myProducts as $p): ?>
                     <tr>
                         <td><?= htmlspecialchars($p['name']); ?></td>
-                        <td><?= htmlspecialchars($p['category']); ?></td>
-                        <td><?= format_price_cents((int)$p['price']); ?></td>
-                        <td><?= (int)$p['stock']; ?></td>
+                        <td><?= htmlspecialchars($p['category'] ?? 'Uncategorized'); ?></td>
+                        <td>
+                            <?php
+                  if (array_key_exists('price_cents', $p) && $p['price_cents'] !== null) {
+                      echo format_price_cents((int)$p['price_cents']);
+                  } elseif (array_key_exists('price', $p) && $p['price'] !== null) {
+                      echo format_price((float)$p['price']);
+                  } else {
+                      echo '—';
+                  }
+                ?>
+                        </td>
+                        <td><?= (int)($p['stock'] ?? 0); ?></td>
                     </tr>
                     <?php endforeach; ?>
                     <?php else: ?>

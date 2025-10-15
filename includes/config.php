@@ -1,22 +1,19 @@
 <?php
-// includes/config.php — cleaned, robust, and SwiftMart-ready
+// includes/config.php — SwiftMart (DB port-safe, robust)
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/* ───────────────────────────────
-   DATABASE CONFIGURATION
-─────────────────────────────── */
-define('DB_HOST', 'localhost');
+define('DB_HOST', '127.0.0.1');   // use 127.0.0.1 on Windows
+define('DB_PORT', 3307);          // <-- set to 3306 if your MySQL uses the default port
 define('DB_NAME', 'swiftmart');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_USER', 'root');        // XAMPP default
+define('DB_PASS', '');            // XAMPP default (blank)
 define('DB_CHARSET', 'utf8mb4');
+define('DB_DEBUG', true);         // show exact PDO errors during setup (set false in prod)
 
-/* ───────────────────────────────
-   APPLICATION SETTINGS
-─────────────────────────────── */
+
 define('APP_NAME', 'SwiftMart');
 define('APP_VERSION', '1.0.0');
 define('APP_URL', 'http://localhost/swiftmart');
@@ -26,9 +23,7 @@ define('JWT_SECRET', 'your-secret-key-change-this-in-production');
 define('PASSWORD_MIN_LENGTH', 8);
 define('SESSION_TIMEOUT', 3600); // 1 hour
 
-/* ───────────────────────────────
-   FILE UPLOAD SETTINGS
-─────────────────────────────── */
+
 define('UPLOAD_MAX_SIZE', 5 * 1024 * 1024);
 define('UPLOAD_ALLOWED_TYPES', ['jpg', 'jpeg', 'png', 'gif', 'webp']);
 define('UPLOAD_PATH', __DIR__ . '/../uploads/');
@@ -36,25 +31,27 @@ define('UPLOAD_PATH', __DIR__ . '/../uploads/');
 define('ITEMS_PER_PAGE', 20);
 define('ADMIN_ITEMS_PER_PAGE', 50);
 
-/* ───────────────────────────────
-   DATABASE CONNECTION CLASS
-─────────────────────────────── */
+
 class Database {
     private static $instance = null;
     private $connection;
 
     private function __construct() {
+        $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES " . DB_CHARSET
+        ];
         try {
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES " . DB_CHARSET
-            ];
             $this->connection = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
-            error_log("Database connection failed: " . $e->getMessage());
+            error_log("PDO connect failed: " . $e->getMessage());
+            if (DB_DEBUG) {
+                // During setup, show the exact reason (e.g., port/host/db/creds)
+                throw new Exception("PDO connect failed: " . $e->getMessage());
+            }
             throw new Exception("Database connection failed");
         }
     }
@@ -65,17 +62,15 @@ class Database {
     }
 
     public function getConnection() { return $this->connection; }
-    public function prepare($sql) { return $this->connection->prepare($sql); }
-    public function query($sql) { return $this->connection->query($sql); }
-    public function lastInsertId() { return $this->connection->lastInsertId(); }
-    public function beginTransaction() { return $this->connection->beginTransaction(); }
-    public function commit() { return $this->connection->commit(); }
-    public function rollback() { return $this->connection->rollback(); }
+    public function prepare($sql)    { return $this->connection->prepare($sql); }
+    public function query($sql)      { return $this->connection->query($sql); }
+    public function lastInsertId()   { return $this->connection->lastInsertId(); }
+    public function beginTransaction(){ return $this->connection->beginTransaction(); }
+    public function commit()         { return $this->connection->commit(); }
+    public function rollback()       { return $this->connection->rollback(); }
 }
 
-/* ───────────────────────────────
-   PATH & URL HELPERS
-─────────────────────────────── */
+
 function base_path(): string {
     $docRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
     $appRootFs = str_replace('\\', '/', realpath(__DIR__ . '/..'));
@@ -106,16 +101,14 @@ function redirect(string $url, int $status_code = 302): void {
     exit;
 }
 
-/* ───────────────────────────────
-   AUTH HELPERS
-─────────────────────────────── */
+
 function current_user_id(): ?int {
-    return $_SESSION['user_id'] ?? null;
+    return isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
 }
 
 function current_vendor_id(): ?int {
-    // Supports both vendor_id and user_id for vendors
-    if (!empty($_SESSION['vendor_id'])) return (int)$_SESSION['vendor_id'];
+    if (!empty($_SESSION['vendor_id'])) return (int)$_SESSION['vendor_id']; // vendor login
+    // fallback: some older flows used user_id+role
     if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'vendor' && !empty($_SESSION['user_id'])) {
         return (int)$_SESSION['user_id'];
     }
@@ -135,16 +128,13 @@ function is_admin(): bool {
 }
 
 function is_vendor(): bool {
-    return ($_SESSION['user_role'] ?? '') === 'vendor';
+    return (($_SESSION['user_role'] ?? '') === 'vendor') && !empty(current_vendor_id());
 }
 
 function is_customer(): bool {
-    return ($_SESSION['user_role'] ?? '') === 'customer';
+    return (($_SESSION['user_role'] ?? '') === 'customer');
 }
 
-/* ───────────────────────────────
-   ACCESS CONTROLS
-─────────────────────────────── */
 function require_login(): void {
     if (!is_logged_in()) {
         redirect(build_path('/customer/login.php'));
@@ -152,7 +142,7 @@ function require_login(): void {
 }
 
 function require_vendor(): void {
-    if (!is_vendor() || empty($_SESSION['vendor_id'])) {
+    if (!is_vendor()) {
         redirect(build_path('/vendor/login.php'));
     }
 }
@@ -163,14 +153,11 @@ function require_admin(): void {
     }
 }
 
-/* ───────────────────────────────
-   SESSION TIMEOUT
-─────────────────────────────── */
 if (isset($_SESSION['user_id']) || isset($_SESSION['vendor_id']) || isset($_SESSION['is_admin'])) {
     $now = time();
     if (!isset($_SESSION['last_activity'])) {
         $_SESSION['last_activity'] = $now;
-    } elseif (($now - $_SESSION['last_activity']) > SESSION_TIMEOUT) {
+    } elseif (($now - ($_SESSION['last_activity'] ?? 0)) > SESSION_TIMEOUT) {
         $_SESSION = [];
         session_destroy();
         redirect(build_path('/admin/login.php'));
@@ -179,9 +166,7 @@ if (isset($_SESSION['user_id']) || isset($_SESSION['vendor_id']) || isset($_SESS
     }
 }
 
-/* ───────────────────────────────
-   UTILITY HELPERS
-─────────────────────────────── */
+
 function format_price_cents(int $cents): string {
     return '₹' . number_format($cents / 100, 2);
 }
@@ -211,14 +196,10 @@ function validate_email(string $email): bool {
 
 function validate_password(string $password): array {
     $errors = [];
-    if (strlen($password) < PASSWORD_MIN_LENGTH)
-        $errors[] = "Password must be at least " . PASSWORD_MIN_LENGTH . " characters long.";
-    if (!preg_match('/[A-Z]/', $password))
-        $errors[] = "Password must contain at least one uppercase letter.";
-    if (!preg_match('/[a-z]/', $password))
-        $errors[] = "Password must contain at least one lowercase letter.";
-    if (!preg_match('/[0-9]/', $password))
-        $errors[] = "Password must contain at least one number.";
+    if (strlen($password) < PASSWORD_MIN_LENGTH) $errors[] = "Password must be at least " . PASSWORD_MIN_LENGTH . " characters long.";
+    if (!preg_match('/[A-Z]/', $password))      $errors[] = "Password must contain at least one uppercase letter.";
+    if (!preg_match('/[a-z]/', $password))      $errors[] = "Password must contain at least one lowercase letter.";
+    if (!preg_match('/[0-9]/', $password))      $errors[] = "Password must contain at least one number.";
     return $errors;
 }
 
@@ -231,47 +212,41 @@ function verify_password(string $password, string $hash): bool {
 }
 
 function generate_order_number(): string {
-    return 'SM' . date('Ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+    return 'SM' . date('Ymd') . str_pad((string)rand(1, 9999), 4, '0', STR_PAD_LEFT);
 }
 
-/* ───────────────────────────────
-   FILE UPLOADS
-─────────────────────────────── */
+
 function upload_file(array $file, string $directory = ''): array {
-    $errors = [];
     if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK)
         return ['success' => false, 'errors' => ['File upload failed']];
-    if ($file['size'] > UPLOAD_MAX_SIZE)
+    if (($file['size'] ?? 0) > UPLOAD_MAX_SIZE)
         return ['success' => false, 'errors' => ['File too large']];
-    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
     if (!in_array($ext, UPLOAD_ALLOWED_TYPES))
         return ['success' => false, 'errors' => ['Invalid file type']];
     $upload_dir = rtrim(UPLOAD_PATH . $directory, '/');
     if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
-    $filename = uniqid() . '.' . $ext;
+    $filename = uniqid('', true) . '.' . $ext;
     $filepath = $upload_dir . '/' . $filename;
     if (!move_uploaded_file($file['tmp_name'], $filepath))
         return ['success' => false, 'errors' => ['Failed to move uploaded file']];
     return [
-        'success' => true,
+        'success'  => true,
         'filename' => $filename,
         'filepath' => $filepath,
-        'url' => build_path('/uploads/' . $directory . '/' . $filename)
+        'url'      => build_path('/uploads/' . trim($directory, '/') . '/' . $filename)
     ];
 }
 
-/* ───────────────────────────────
-   PAGINATION & JSON HELPERS
-─────────────────────────────── */
 function paginate(int $total_items, int $current_page = 1, int $items_per_page = ITEMS_PER_PAGE): array {
     $total_pages = max(1, (int)ceil($total_items / $items_per_page));
     $current_page = max(1, min($current_page, $total_pages));
     $offset = ($current_page - 1) * $items_per_page;
     return [
-        'current_page' => $current_page,
-        'total_pages' => $total_pages,
+        'current_page'   => $current_page,
+        'total_pages'    => $total_pages,
         'items_per_page' => $items_per_page,
-        'offset' => $offset
+        'offset'         => $offset
     ];
 }
 
@@ -282,9 +257,6 @@ function json_response(array $data, int $status_code = 200): void {
     exit;
 }
 
-/* ───────────────────────────────
-   FLASH MESSAGES
-─────────────────────────────── */
 function flash_message(string $type, string $message): void {
     $_SESSION['flash'][$type][] = $message;
 }
@@ -295,17 +267,13 @@ function get_flash_messages(string $type = null): array {
         unset($_SESSION['flash'][$type]);
         return $msgs;
     }
-    $msgs = $_SESSION['flash'] ?? [];
+    $all = $_SESSION['flash'] ?? [];
     unset($_SESSION['flash']);
-    return $msgs;
+    return $all;
 }
 
 function has_flash_messages(string $type = null): bool {
-    if ($type) return !empty($_SESSION['flash'][$type]);
-    return !empty($_SESSION['flash']);
+    return $type ? !empty($_SESSION['flash'][$type]) : !empty($_SESSION['flash']);
 }
 
-/* ───────────────────────────────
-   TIMEZONE
-─────────────────────────────── */
 date_default_timezone_set(APP_TIMEZONE);
