@@ -2,6 +2,11 @@
 require_once __DIR__ . '/../includes/head.php';
 require_once __DIR__ . '/../includes/config.php';
 require_vendor();
+$vendorId = current_vendor_id();
+if ($vendorId) {
+	header('Location: ' . build_path('/php/pages/sales_forecast.php?vendor_id=' . (int)$vendorId));
+	exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,27 +29,7 @@ require_vendor();
             <h1 class="h4">Sales Analytics (AI Placeholder)</h1>
             <a class="btn btn-outline-secondary" href="<?php echo build_path('/vendor/dashboard.php'); ?>">Back</a>
         </div>
-        <div class="row g-3">
-            <div class="col-12 col-lg-6">
-                <div class="card p-3">
-                    <div class="small text-muted mb-2">Revenue Trend</div>
-                    <div class="placeholder-chart rounded"></div>
-                </div>
-            </div>
-            <div class="col-12 col-lg-6">
-                <div class="card p-3">
-                    <div class="small text-muted mb-2">Top Categories</div>
-                    <div class="placeholder-chart rounded"></div>
-                </div>
-            </div>
-        </div>
-        <div class="card p-3 mt-3">
-            <div class="small text-muted">AI Insights (stub)</div>
-            <ul class="mb-0">
-                <li>Peak sales on weekends.</li>
-                <li>Cross-sell opportunity: Headphones buyers also view phone cases.</li>
-            </ul>
-        </div>
+        <div class="alert alert-info">Redirecting to your sales forecast...</div>
     </main>
 
     <?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -276,3 +276,73 @@ For support and questions:
 ---
 
 **SwiftMart** - Your Ultimate Multi-Sector Delivery Platform 🚀
+
+
+## AI Forecasting + Chatbot (Flask + PHP)
+
+### Overview
+- Python Flask service provides `/forecast` and `/chat` endpoints.
+- Forecast uses Prophet; responses include KPIs and Plotly figure JSON.
+- Chatbot calls local Ollama (`OLLAMA_HOST`) with model (`OLLAMA_MODEL`, e.g., llama3) and uses forecast context for answers.
+
+### Directory Structure
+```
+ai/
+  app.py
+  forecast_service.py
+  chatbot_service.py
+  requirements.txt
+php/
+  ai/
+    forecast.php
+    chatbot.php
+  pages/
+    sales_forecast.php
+    chatbot.php
+```
+
+### Prerequisites
+- Python 3.10+
+- Node not required
+- MySQL available with SwiftMart schema and order data
+- Ollama installed and a model pulled (e.g., `ollama pull llama3`)
+
+### Configure Environment
+1. Copy `.env.example` to `.env` in the repo root.
+2. Adjust values as needed (ports, DB creds):
+```
+FLASK_PORT=5055
+DB_HOST=127.0.0.1
+DB_PORT=3307
+DB_USER=root
+DB_PASS=
+DB_NAME=swiftmart
+OLLAMA_HOST=http://127.0.0.1:11434
+OLLAMA_MODEL=llama3
+```
+
+### Install Python Dependencies
+```bash
+cd ai
+python -m venv .venv
+# Windows PowerShell
+. .venv/Scripts/Activate.ps1
+pip install -r requirements.txt
+```
+
+### Run Flask Service
+```bash
+# from ai/
+python app.py
+# Service runs on http://127.0.0.1:5055 (configurable via .env)
+```
+
+### Test Endpoints
+- Forecast: `GET http://127.0.0.1:5055/forecast?horizon=90`
+- Chat: `POST http://127.0.0.1:5055/chat` with JSON `{"message":"Why are sales dropping?"}`
+
+### PHP Integration
+- Forecast UI: visit `/php/pages/sales_forecast.php`
+- Chatbot UI: visit `/php/pages/chatbot.php`
+
+Both PHP pages call the Flask API via cURL and render the results (Bootstrap + Plotly).

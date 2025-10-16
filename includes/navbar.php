@@ -56,12 +56,16 @@
                         <i class="bi bi-building me-1"></i>Stores
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="<?php echo build_path('/chatbot.php'); ?>">
+                        <i class="bi bi-robot me-1"></i>AI Assistant
+                    </a>
+                </li>
             </ul>
             <form class="d-flex my-2 my-lg-0" role="search" action="<?php echo build_path('/customer/listings.php'); ?>"
                 method="get">
                 <div class="input-group">
-                    <input class="form-control" type="search" name="q"
-                        placeholder="Search products, categories, brands..." aria-label="Search">
+
                     <button class="btn btn-primary" type="submit">
                         <i class="bi bi-search"></i>
                         <span class="d-none d-md-inline ms-1">Search</span>

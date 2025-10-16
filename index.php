@@ -203,7 +203,7 @@ $heroPoster = build_asset('/assets/img/hero-poster.jpg');     // add this image 
         <!-- Featured Restaurants -->
         <section class="my-5" aria-labelledby="featured-title">
             <div class="section-header">
-                <h2 id="featured-title" class="section-title">Featured Restaurants</h2>
+                <h2 id="featured-title" class="section-title">Featured Stores</h2>
                 <p class="section-subtitle">Find nearby popular restaurants with fast delivery</p>
             </div>
 
