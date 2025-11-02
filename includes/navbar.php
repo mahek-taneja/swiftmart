@@ -1,4 +1,15 @@
-<?php require_once __DIR__ . '/config.php'; ?>
+<?php 
+require_once __DIR__ . '/config.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+// Check user states
+$isLoggedIn = is_logged_in();
+$isVendor = is_vendor();
+$isAdmin = is_admin();
+$isCustomer = is_customer();
+$vendorId = current_vendor_id();
+$userId = current_user_id();
+?>
 <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="<?php echo build_path('/index.php'); ?>">
@@ -31,24 +42,70 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
-                        <i class="bi bi-person-circle me-1"></i>Account
+                        <i class="bi bi-person-circle me-1"></i>
+                        <?php if ($isVendor): ?>
+                        Vendor Account
+                        <?php elseif ($isAdmin): ?>
+                        Admin
+                        <?php elseif ($isCustomer): ?>
+                        Customer
+                        <?php else: ?>
+                        Account
+                        <?php endif; ?>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/login.php'); ?>">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Vendor Login
+                        <?php if ($isVendor): ?>
+                        <!-- Logged in as Vendor -->
+                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/dashboard.php'); ?>">
+                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
                             </a></li>
-                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/register.php'); ?>">
-                                <i class="bi bi-person-plus me-2"></i>Vendor Register
+                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/inventory.php'); ?>">
+                                <i class="bi bi-box-seam me-2"></i>Inventory
+                            </a></li>
+                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/orders.php'); ?>">
+                                <i class="bi bi-cart-check me-2"></i>Orders
+                            </a></li>
+                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/analytics.php'); ?>">
+                                <i class="bi bi-graph-up me-2"></i>Analytics
                             </a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/dashboard.php'); ?>">
-                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/logout.php'); ?>">
+                                <i class="bi bi-box-arrow-right me-2"></i>Logout
                             </a></li>
+                        <?php elseif ($isAdmin): ?>
+                        <!-- Logged in as Admin -->
+                        <li><a class="dropdown-item" href="<?php echo build_path('/admin/users.php'); ?>">
+                                <i class="bi bi-people me-2"></i>Users
+                            </a></li>
+                        <li><a class="dropdown-item" href="<?php echo build_path('/admin/vendors.php'); ?>">
+                                <i class="bi bi-shop me-2"></i>Vendors
+                            </a></li>
+                        <li><a class="dropdown-item" href="<?php echo build_path('/admin/analytics.php'); ?>">
+                                <i class="bi bi-graph-up me-2"></i>Analytics
+                            </a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="<?php echo build_path('/admin/logout.php'); ?>">
+                                <i class="bi bi-box-arrow-right me-2"></i>Logout
+                            </a></li>
+                        <?php else: ?>
+                        <!-- Not logged in - Show registration options -->
+                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/register.php'); ?>">
+                                <i class="bi bi-person-plus me-2"></i>Become a Vendor
+                            </a></li>
+                        <li><a class="dropdown-item" href="<?php echo build_path('/vendor/login.php'); ?>">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Vendor Login
+                            </a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item" href="<?php echo build_path('/admin/login.php'); ?>">
-                                <i class="bi bi-gear me-2"></i>Admin
+                                <i class="bi bi-gear me-2"></i>Admin Login
                             </a></li>
+                        <?php endif; ?>
                     </ul>
                 </li>
                 <li class="nav-item">

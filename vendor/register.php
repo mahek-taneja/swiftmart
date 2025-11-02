@@ -3,6 +3,12 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/head.php';
 
+// Redirect if already logged in as vendor
+if (is_vendor()) {
+    redirect(build_path('/vendor/dashboard.php'));
+    exit;
+}
+
 $error = $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -14,18 +20,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "All fields are required.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Invalid email format.";
+    } elseif (strlen($password) < 8) {
+        $error = "Password must be at least 8 characters long.";
     } else {
         try {
             $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT id FROM vendors WHERE email = ?");
+            
+            // Check if email already exists in users table
+            $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
             if ($stmt->fetch()) {
                 $error = "Email already registered.";
             } else {
-                $hash = password_hash($password, PASSWORD_DEFAULT);
-                $insert = $db->prepare("INSERT INTO vendors (name, email, password_hash) VALUES (?, ?, ?)");
-                $insert->execute([$name, $email, $hash]);
-                $success = "Registration successful! Await admin approval.";
+                // Store registration data in session for subscription page
+                $_SESSION['vendor_registration'] = [
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => $password
+                ];
+                
+                // Redirect to subscription page
+                redirect(build_path('/vendor/subscription.php'));
+                exit;
             }
         } catch (Exception $e) {
             $error = "Error: " . $e->getMessage();

@@ -283,7 +283,7 @@ $heroPoster = build_asset('/assets/img/hero-poster.jpg');     // add this image 
                             <i class="bi bi-truck text-success" style="font-size: 3rem;" aria-hidden="true"></i>
                         </div>
                         <h4 class="card-title text-success fw-bold">Free Delivery</h4>
-                        <p class="card-text text-muted">On orders above $25 from partner restaurants</p>
+                        <p class="card-text text-muted">On orders above ₹2,000 from partner restaurants</p>
                         <a href="<?= htmlspecialchars(build_path('/customer/listings.php')) ?>"
                             class="btn btn-success">Shop Now</a>
                     </div>

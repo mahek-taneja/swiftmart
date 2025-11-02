@@ -41,6 +41,14 @@ require_once __DIR__ . '/../data/products.php';
     <?php include __DIR__ . '/../includes/footer.php'; ?>
 
     <script>
+    // FORCE formatPrice to use rupees - override any cached version
+    window.DeliverX = window.DeliverX || {};
+    window.DeliverX.formatPrice = function(cents) {
+        const amount = (typeof cents === 'number' ? cents : parseFloat(cents) || 0) / 100;
+        const formatted = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return `₹${formatted}`;
+    };
+    
     const PRODUCTS = <?php echo json_encode($PRODUCTS); ?>;
 
     function findProductById(id) {
@@ -86,7 +94,17 @@ require_once __DIR__ . '/../data/products.php';
             once: true
         });
     }
-    document.addEventListener('DOMContentLoaded', renderCart);
+    
+    // Ensure formatPrice is always rupees, even after main.js loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Force override formatPrice again after all scripts load
+        window.DeliverX.formatPrice = function(cents) {
+            const amount = (typeof cents === 'number' ? cents : parseFloat(cents) || 0) / 100;
+            const formatted = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return `₹${formatted}`;
+        };
+        renderCart();
+    });
     </script>
 
 </body>
