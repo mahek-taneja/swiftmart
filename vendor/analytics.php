@@ -12,7 +12,7 @@ if ($vendorId) {
 <html lang="en">
 
 <head>
-    <?php render_head('Sales Analytics – DeliverX'); ?>
+    <?php render_head('Sales Analytics – SwiftMart'); ?>
     <style>
     .placeholder-chart {
         height: 220px;

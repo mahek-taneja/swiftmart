@@ -108,11 +108,7 @@ $userId = current_user_id();
                         <?php endif; ?>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-semibold" href="<?php echo build_path('/stores.php'); ?>">
-                        <i class="bi bi-building me-1"></i>Stores
-                    </a>
-                </li>
+
                 <li class="nav-item">
                     <a class="nav-link fw-semibold" href="<?php echo build_path('/chatbot.php'); ?>">
                         <i class="bi bi-robot me-1"></i>AI Assistant

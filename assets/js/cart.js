@@ -9,8 +9,17 @@ function writeCart(items){
 function addToCart(product, qty=1){
   const cart = readCart();
   const existing = cart.find(i=>i.id===product.id);
-  if(existing){ existing.qty += qty; }
-  else { cart.push({ id: product.id, name: product.name, price: product.price, qty }); }
+  if(existing){
+    existing.qty += qty;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      qty,
+      vendor_id: product.vendor_id || null
+    });
+  }
   writeCart(cart);
   updateCartCountBadge();
 }

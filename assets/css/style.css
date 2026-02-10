@@ -108,6 +108,153 @@ body {
   height: 180px;
 }
 
+/* Ensure product card images always fill the card area */
+.product-card .card-img-top,
+.product-card img {
+  width: 100%;
+  height: 220px;
+  /* default desktop */
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  background-color: #fff;
+}
+
+/* Use flex on product card so all cards are equal height and body stretches */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.product-card .card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+/* wrapper for the image area to control exact box size and cropping */
+.product-card .card-img-top-wrapper {
+  flex: 0 0 auto;
+  width: 100%;
+  height: 180px; /* tighter thumbnail */
+  overflow: hidden;
+  display: block;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  background: #ffffff;
+}
+
+.product-card .card-img-top-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+/* Ensure the card respects radius and prevents overflow */
+.product-card {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.product-card .card-body {
+  padding: 14px;
+  justify-content: space-between;
+}
+
+/* Make sure the grid column stretches so all cards align */
+.row.g-3>.col-6,
+.row.g-3>.col-md-4,
+.row.g-3>.col-lg-3 {
+  display: flex;
+}
+
+.row.g-3>.col-6>.card,
+.row.g-3>.col-md-4>.card,
+.row.g-3>.col-lg-3>.card {
+  flex: 1 1 auto;
+}
+
+/* Responsive height adjustments for listing thumbnails */
+@media (max-width: 992px) {
+
+  .product-card .card-img-top,
+  .product-card img {
+    height: 180px;
+  }
+}
+
+@media (max-width: 576px) {
+
+  .product-card .card-img-top,
+  .product-card img {
+    height: 140px;
+  }
+}
+
+/* Product detail (single product) image — fill the left column nicely */
+.product-detail-image {
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+  /* cover gives a consistent visual crop */
+  object-position: center center;
+  display: block;
+  background: #fff;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .product-detail-image {
+    height: 260px;
+  }
+}
+
+/* Product page layout improvements */
+.product-page .row {
+  align-items: center;
+}
+
+.product-page .col-md-6:first-child {
+  /* image column */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-detail-image {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  /* keep natural aspect ratio */
+  object-fit: contain;
+  /* show full product */
+  object-position: center center;
+}
+
+.product-page .price.display-6 {
+  font-size: 2.25rem;
+  color: var(--accent-600);
+}
+
+/* Reduce top/bottom whitespace for product page */
+.product-page {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .product-detail-image {
+    max-width: 100%;
+    height: 260px;
+  }
+}
+
 .price {
   color: var(--accent-600);
   font-weight: 600;
@@ -115,6 +262,23 @@ body {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* Checkout payment method visibility (no-JS fallback) */
+.payment-form-checkout {
+  display: none;
+}
+
+#pm_card_checkout:checked~#cardPaymentFormCheckout {
+  display: block;
+}
+
+#pm_upi_checkout:checked~#upiPaymentFormCheckout {
+  display: block;
+}
+
+#pm_online_checkout:checked~#onlinePaymentFormCheckout {
+  display: block;
 }
 
 /* Search tweaks */
@@ -266,25 +430,29 @@ body {
 }
 
 /* CTA Card (replaces second video) */
-.cta-card {
-  position: relative;
-  border-radius: 20px;
+.product-card {
+  border-radius: 12px;
   overflow: hidden;
-  height: 340px;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
   background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: transform .12s ease, box-shadow .12s ease;
 }
 
-.cta-gradient {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(800px 320px at 10% -10%, rgba(255, 107, 53, .18), rgba(255, 107, 53, 0)),
-    linear-gradient(180deg, rgba(255, 107, 53, .12), rgba(255, 107, 53, 0));
+.product-card:hover { transform: translateY(-6px); box-shadow: 0 14px 34px rgba(0,0,0,0.12); }
+
+.product-card .card-body {
+  padding: 12px 14px;
+  justify-content: space-between;
 }
 
-.cta-content {
+/* Make sure the grid column stretches so all cards align */
+.row.g-3 > [class*="col-"] { display: flex; }
+.row.g-3 > [class*="col-"] > .card { flex: 1 1 auto; display:flex; flex-direction:column; }
+
+/* Tidy title/price spacing */
+.product-card .card-title { font-size: 1rem; margin-bottom: 6px; }
+.product-card .small { margin-bottom: 10px; color: var(--text-700); }
+.product-card .price { margin-top: 8px; }
   position: relative;
   text-align: center;
   padding: 0 24px;

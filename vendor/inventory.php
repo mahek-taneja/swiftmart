@@ -180,10 +180,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-// Load categories
+// Load categories (auto-seed defaults if table is empty)
 $categories = [];
 try {
   $categories = $pdo->query("SELECT id, name FROM categories ORDER BY name ASC")->fetchAll();
+
+  if (!$categories) {
+    // Detect whether the categories table has a 'slug' column (old vs new schema)
+    $hasSlug = false;
+    try {
+      $colStmt = $pdo->prepare("SHOW COLUMNS FROM categories LIKE 'slug'");
+      $colStmt->execute();
+      $hasSlug = (bool)$colStmt->fetch();
+    } catch (Throwable $ignored) {
+      $hasSlug = false;
+    }
+
+    if ($hasSlug) {
+      // Newer schema with slug column
+      $seedSql = "INSERT INTO categories (name, slug, description) VALUES
+        ('Electronics', 'electronics', 'Electronic devices and gadgets'),
+        ('Fashion', 'fashion', 'Clothing and accessories'),
+        ('Food & Drinks', 'food-drinks', 'Food items and beverages'),
+        ('Home & Garden', 'home-garden', 'Home improvement and garden supplies'),
+        ('Health & Beauty', 'health-beauty', 'Health and beauty products'),
+        ('Sports & Fitness', 'sports-fitness', 'Sports equipment and fitness gear'),
+        ('Groceries', 'groceries', 'Grocery items'),
+        ('Toys & Games', 'toys-games', 'Toys and games')";
+    } else {
+      // Older schema without slug column
+      $seedSql = "INSERT INTO categories (name) VALUES
+        ('Electronics'),
+        ('Fashion'),
+        ('Food & Drinks'),
+        ('Home & Garden'),
+        ('Health & Beauty'),
+        ('Sports & Fitness'),
+        ('Groceries'),
+        ('Toys & Games')";
+    }
+
+    $pdo->exec($seedSql);
+    $categories = $pdo->query("SELECT id, name FROM categories ORDER BY name ASC")->fetchAll();
+  }
 } catch (Throwable $e) {
   $error = $error ?: $e->getMessage();
 }

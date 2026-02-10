@@ -251,24 +251,34 @@ class Category extends Model {
 class Product extends Model {
     protected $table = 'products';
     
+    public function find(int $id) {
+        $sql = "SELECT p.*, c.name as category_name, COALESCE(pi.image_url, p.image) as image_url
+                FROM {$this->table} p
+                LEFT JOIN categories c ON p.category_id = c.id
+                LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_primary = 1
+                WHERE p.id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+    
     public function findBySlug(string $slug) {
-        $sql = "SELECT p.*, c.name as category_name, v.business_name as vendor_name 
-                FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id 
-                LEFT JOIN vendors v ON p.vendor_id = v.id 
-                WHERE p.slug = ? AND p.is_active = 1";
+        $sql = "SELECT p.*, c.name as category_name, COALESCE(pi.image_url, p.image) as image_url
+            FROM {$this->table} p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_primary = 1
+            WHERE p.slug = ? AND p.is_active = 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$slug]);
         return $stmt->fetch();
     }
     
     public function getActiveProducts(int $limit = null, int $offset = 0) {
-        $sql = "SELECT p.*, c.name as category_name, v.business_name as vendor_name 
-                FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id 
-                LEFT JOIN vendors v ON p.vendor_id = v.id 
-                WHERE p.is_active = 1 
-                ORDER BY p.created_at DESC";
+        $sql = "SELECT p.*, c.name as category_name, COALESCE(pi.image_url, p.image) as image_url
+            FROM {$this->table} p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_primary = 1
+            ORDER BY p.created_at DESC";
         
         if ($limit) {
             $sql .= " LIMIT {$limit} OFFSET {$offset}";
@@ -280,12 +290,12 @@ class Product extends Model {
     }
     
     public function getProductsByCategory(int $categoryId, int $limit = null, int $offset = 0) {
-        $sql = "SELECT p.*, c.name as category_name, v.business_name as vendor_name 
-                FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id 
-                LEFT JOIN vendors v ON p.vendor_id = v.id 
-                WHERE p.category_id = ? AND p.is_active = 1 
-                ORDER BY p.created_at DESC";
+        $sql = "SELECT p.*, c.name as category_name, COALESCE(pi.image_url, p.image) as image_url
+            FROM {$this->table} p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_primary = 1
+            WHERE p.category_id = ?
+            ORDER BY p.created_at DESC";
         
         if ($limit) {
             $sql .= " LIMIT {$limit} OFFSET {$offset}";
@@ -297,15 +307,23 @@ class Product extends Model {
     }
     
     public function getProductsByVendor(int $vendorId, int $limit = null, int $offset = 0) {
-        return $this->findAll(['vendor_id' => $vendorId, 'is_active' => 1], $limit, $offset, 'created_at DESC');
+        $sql = "SELECT p.*, c.name as category_name, COALESCE(pi.image_url, p.image) as image_url
+                FROM {$this->table} p 
+                LEFT JOIN categories c ON p.category_id = c.id 
+                LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_primary = 1
+                WHERE p.vendor_id = ? AND p.is_active = 1
+                ORDER BY p.created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$vendorId]);
+        return $stmt->fetchAll();
     }
     
     public function getFeaturedProducts(int $limit = 10) {
-        $sql = "SELECT p.*, c.name as category_name, v.business_name as vendor_name 
+        $sql = "SELECT p.*, c.name as category_name
                 FROM {$this->table} p 
                 LEFT JOIN categories c ON p.category_id = c.id 
-                LEFT JOIN vendors v ON p.vendor_id = v.id 
-                WHERE p.is_featured = 1 AND p.is_active = 1 
+                WHERE p.is_featured = 1 
                 ORDER BY p.rating DESC, p.created_at DESC 
                 LIMIT ?";
         
@@ -315,11 +333,10 @@ class Product extends Model {
     }
     
     public function searchProducts(string $query, int $limit = null, int $offset = 0) {
-        $sql = "SELECT p.*, c.name as category_name, v.business_name as vendor_name 
+        $sql = "SELECT p.*, c.name as category_name
                 FROM {$this->table} p 
                 LEFT JOIN categories c ON p.category_id = c.id 
-                LEFT JOIN vendors v ON p.vendor_id = v.id 
-                WHERE p.is_active = 1 AND (
+                WHERE (
                     p.name LIKE ? OR 
                     p.description LIKE ? OR 
                     p.short_description LIKE ? OR
@@ -363,10 +380,8 @@ class Order extends Model {
     protected $table = 'orders';
     
     public function findByOrderNumber(string $orderNumber) {
-        $sql = "SELECT o.*, u.first_name, u.last_name, u.email, v.business_name as vendor_name 
+        $sql = "SELECT o.*
                 FROM {$this->table} o 
-                LEFT JOIN users u ON o.user_id = u.id 
-                LEFT JOIN vendors v ON o.vendor_id = v.id 
                 WHERE o.order_number = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$orderNumber]);
@@ -374,9 +389,8 @@ class Order extends Model {
     }
     
     public function getOrdersByUser(int $userId, int $limit = null, int $offset = 0) {
-        $sql = "SELECT o.*, v.business_name as vendor_name 
+        $sql = "SELECT o.*
                 FROM {$this->table} o 
-                LEFT JOIN vendors v ON o.vendor_id = v.id 
                 WHERE o.user_id = ? 
                 ORDER BY o.created_at DESC";
         
@@ -390,9 +404,8 @@ class Order extends Model {
     }
     
     public function getOrdersByVendor(int $vendorId, int $limit = null, int $offset = 0) {
-        $sql = "SELECT o.*, u.first_name, u.last_name, u.email 
+        $sql = "SELECT o.*
                 FROM {$this->table} o 
-                LEFT JOIN users u ON o.user_id = u.id 
                 WHERE o.vendor_id = ? 
                 ORDER BY o.created_at DESC";
         
@@ -447,6 +460,31 @@ class Order extends Model {
     
     public function updateStatus(int $orderId, string $status) {
         return $this->update($orderId, ['status' => $status]);
+    }
+}
+
+/**
+ * Order Tracking Event Model
+ */
+class OrderTrackingEvent extends Model {
+    protected $table = 'order_tracking_events';
+
+    public function getEventsForOrder(int $orderId) {
+        $sql = "SELECT * FROM {$this->table} WHERE order_id = ? ORDER BY created_at ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$orderId]);
+        return $stmt->fetchAll();
+    }
+
+    public function addEvent(int $orderId, string $status, ?string $location = null, ?string $details = null, ?float $lat = null, ?float $lng = null) {
+        return $this->create([
+            'order_id' => $orderId,
+            'status'   => $status,
+            'location' => $location,
+            'details'  => $details,
+            'latitude' => $lat,
+            'longitude'=> $lng,
+        ]);
     }
 }
 

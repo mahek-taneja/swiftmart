@@ -156,40 +156,9 @@ class DummyPaymentGateway {
                 'error_code' => 'INVALID_UPI'
             ];
         }
-        
-        // Validate UPI format (name@paytm, name@phonepe, name@ybl, etc.)
-        if (!preg_match('/^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/i', $upiId)) {
-            return [
-                'success' => false,
-                'message' => 'Invalid UPI ID format. Use format: name@paytm or name@phonepe',
-                'transaction_id' => null,
-                'error_code' => 'INVALID_UPI_FORMAT'
-            ];
-        }
-        
-        // Test UPI that fails
-        if (stripos($upiId, 'fail@') === 0) {
-            return [
-                'success' => false,
-                'message' => 'UPI payment failed. Please try again.',
-                'transaction_id' => null,
-                'error_code' => 'UPI_FAILED'
-            ];
-        }
-        
+
         $transactionId = 'UPI' . date('YmdHis') . rand(1000, 9999);
-        
-        // 98% success rate for UPI
-        $random = rand(1, 100);
-        if ($random <= 2) {
-            return [
-                'success' => false,
-                'message' => 'UPI transaction timed out. Please try again.',
-                'transaction_id' => null,
-                'error_code' => 'UPI_TIMEOUT'
-            ];
-        }
-        
+
         return [
             'success' => true,
             'message' => 'UPI payment processed successfully.',

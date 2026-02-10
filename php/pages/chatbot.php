@@ -2,13 +2,16 @@
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../ai/chatbot.php';
 
-$answer = null; $error = null; $message = '';
+$answer = null; $error = null; $warning = null; $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$message = trim($_POST['message'] ?? '');
 	$include = isset($_POST['include_context']) ? true : false;
 	$res = ai_chat($message, $include);
 	if (!empty($res['error'])) $error = $res['error'];
-	else $answer = $res['answer'] ?? '';
+	else {
+		$answer = $res['answer'] ?? '';
+		if (!empty($res['warning'])) $warning = $res['warning'];
+	}
 }
 ?>
 <!DOCTYPE html>
@@ -37,6 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	</form>
 	<?php if ($error): ?>
 	<div class="alert alert-danger"><?= htmlspecialchars($error); ?></div>
+	<?php endif; ?>
+	<?php if ($warning): ?>
+	<div class="alert alert-info"><?= htmlspecialchars($warning); ?></div>
 	<?php endif; ?>
 	<?php if ($answer): ?>
 	<div class="card p-3">

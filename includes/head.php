@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config.php';
 
-function render_head(string $title = 'DeliverX') : void {
+function render_head(string $title = 'SwiftMart') : void {
     ?>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

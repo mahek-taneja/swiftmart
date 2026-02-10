@@ -327,12 +327,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div id="upiPaymentForm" class="payment-form" style="display: none;">
                                 <div class="alert alert-info">
                                     <strong>Test UPI IDs:</strong><br>
-                                    Success: success@paytm, success@phonepe, success@ybl<br>
-                                    Fail: fail@paytm
+                                    Success: <code>success@paytm</code>, <code>success@phonepe</code>, <code>success@ybl</code><br>
+                                    Fail: <code>fail@paytm</code>
                                 </div>
                                 <div class="row g-3">
-                                    <div class="col-12">
-                                        <label for="upi_id" class="form-label">UPI ID</label>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Scan &amp; Pay (Demo QR)</label>
+                                        <div class="border rounded d-flex align-items-center justify-content-center bg-light" style="height:220px;">
+                                            <!-- Demo QR using a public QR service; replace with real QR in production -->
+                                            <img 
+                                                src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=success@paytm&pn=SwiftMartVendor" 
+                                                alt="UPI QR Code" 
+                                                style="max-width:200px;max-height:200px;">
+                                        </div>
+                                        <small class="text-muted d-block mt-1">
+                                            Demo QR only. Replace with your actual vendor subscription UPI QR in production.
+                                        </small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="upi_id" class="form-label">Or enter UPI ID manually</label>
                                         <input type="text" class="form-control" id="upi_id" name="upi_id" 
                                                placeholder="yourname@paytm">
                                         <small class="text-muted">Format: name@paytm, name@phonepe, name@ybl</small>

@@ -5,6 +5,7 @@ require_once __DIR__ . '/php/ai/chatbot.php';
 
 $answer = null;
 $error = null;
+$warning = null;
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -17,6 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = $result['error'];
         } else {
             $answer = $result['answer'] ?? '';
+            // Show warnings as informational messages, not errors
+            if (!empty($result['warning'])) {
+                $warning = $result['warning'];
+            }
         }
     }
 }
@@ -100,6 +105,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="alert alert-danger m-3">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             <?= htmlspecialchars($error) ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($warning): ?>
+                        <div class="alert alert-info m-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <?= htmlspecialchars($warning) ?>
                         </div>
                         <?php endif; ?>
 
